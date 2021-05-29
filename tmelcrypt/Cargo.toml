@@ -1,0 +1,25 @@
+[package]
+name = "tmelcrypt"
+version = "0.1.1-alpha.0"
+authors = ["Themelio Labs"]
+edition = "2018"
+
+description = "Collection of cryptographic utilities for Themelio"
+license = "ISC"
+repository = "https://github.com/themeliolabs/themelio-utils"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.126", features = ["derive"] }
+blake3= "0.3.8"
+hex= "0.4.3"
+rand= "0.7.3"
+base32= "0.4.0"
+arbitrary={ version = "1.0.1", features = ["derive"] }
+serde-big-array = "0.3.2"
+stdcode={version="0.1", path="../stdcode"}
+
+[dependencies.ed25519-dalek]
+features = ["legacy_compatibility"]
+version = "1.0.1"
