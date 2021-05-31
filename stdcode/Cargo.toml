@@ -1,7 +1,7 @@
 [package]
 name = "stdcode"
 description = "Collection of serialization-related utilities for Themelio"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Themelio Labs"]
 edition = "2018"
 license = "ISC"
