@@ -18,7 +18,7 @@ rand= "0.7.3"
 base32= "0.4.0"
 arbitrary={ version = "1.0.1", features = ["derive"] }
 serde-big-array = "0.3.2"
-stdcode={version="0.1", path="../stdcode"}
+stdcode={version= "^0.1.2-alpha.0", path="../stdcode"}
 
 [dependencies.ed25519-dalek]
 features = ["legacy_compatibility"] # this is INTENTIONAL! signatures are not supposed to be non-malleable. do not change, otherwise consensus WILL be broken!
