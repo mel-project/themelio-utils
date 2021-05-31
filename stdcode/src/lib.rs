@@ -1,5 +1,6 @@
 use bincode::Options;
 use serde::{de::DeserializeOwned, Serialize};
+pub mod asstr;
 pub mod hex;
 pub mod hex32;
 

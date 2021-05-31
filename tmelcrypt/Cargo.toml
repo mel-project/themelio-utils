@@ -21,5 +21,5 @@ serde-big-array = "0.3.2"
 stdcode={version="0.1", path="../stdcode"}
 
 [dependencies.ed25519-dalek]
-features = ["legacy_compatibility"]
+features = ["legacy_compatibility"] # this is INTENTIONAL! signatures are not supposed to be non-malleable. do not change, otherwise consensus WILL be broken!
 version = "1.0.1"
