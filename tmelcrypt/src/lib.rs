@@ -155,11 +155,13 @@ impl Ed25519PK {
                 Ok(sig) => pk.verify(msg, &sig).is_ok(),
                 Err(error) => {
                     dbg!("Error while verifying an ed25519 signature: {}", error);
+
                     false
                 },
             },
             Err(error) => {
                 dbg!("Error while creating an ed25519 signature: {}", error);
+                
                 false
             },
         }
