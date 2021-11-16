@@ -1,16 +1,17 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use arbitrary::Arbitrary;
-use ed25519_dalek::{Signer, Verifier};
-use fmt::Display;
-use rand::prelude::*;
-use serde::{Deserialize, Serialize};
-use serde_big_array::big_array;
 use std::fmt;
+use std::fmt::Display;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::{convert::TryFrom, str::FromStr};
 use std::{convert::TryInto, fmt::Formatter};
+
+use arbitrary::Arbitrary;
+use ed25519_dalek::{ed25519, PublicKey, Signer, Verifier};
+use rand::prelude::*;
+use serde::{Deserialize, Serialize};
+use serde_big_array::big_array;
 
 big_array! { BigArray; }
 
@@ -149,7 +150,7 @@ pub struct Ed25519PK(#[serde(with = "stdcode::hex32")] pub [u8; 32]);
 
 impl Ed25519PK {
     pub fn verify(&self, msg: &[u8], sig: &[u8]) -> bool {
-        let pk = ed25519_dalek::PublicKey::from_bytes(&self.0);
+        let pk: Result<PublicKey, ed25519::Error> = ed25519_dalek::PublicKey::from_bytes(&self.0);
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
                 Ok(sig) => pk.verify(msg, &sig).is_ok(),
@@ -161,7 +162,7 @@ impl Ed25519PK {
             },
             Err(error) => {
                 dbg!("Error while creating an ed25519 signature: {}", error);
-                
+
                 false
             },
         }
