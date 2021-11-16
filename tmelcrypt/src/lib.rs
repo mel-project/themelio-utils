@@ -134,7 +134,7 @@ pub fn hash_keyed(key: impl AsRef<[u8]>, val: impl AsRef<[u8]>) -> HashVal {
 
 /// Generates an ed25519 keypair.
 pub fn ed25519_keygen() -> (Ed25519PK, Ed25519SK) {
-    let mut csprng = rand::thread_rng();
+    let mut csprng: ThreadRng = rand::thread_rng();
     let keypair = ed25519_dalek::Keypair::generate(&mut csprng);
     (
         Ed25519PK(keypair.public.to_bytes()),
@@ -153,14 +153,21 @@ impl Ed25519PK {
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
                 Ok(sig) => pk.verify(msg, &sig).is_ok(),
-                Err(_) => false,
+                Err(error) => {
+                    dbg!("Error while verifying an ed25519 signature: {}", error);
+                    false
+                },
             },
-            Err(_) => false,
+            Err(error) => {
+                dbg!("Error while creating an ed25519 signature: {}", error);
+                false
+            },
         }
     }
 
     pub fn from_bytes(bts: &[u8]) -> Option<Self> {
         if bts.len() != 32 {
+            dbg!("In a call to from_bytes(), the input length was not 32.");
             None
         } else {
             let mut buf = [0; 32];

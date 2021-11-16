@@ -1,6 +1,6 @@
 [package]
 name = "tmelcrypt"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Themelio Labs"]
 edition = "2018"
 
@@ -10,16 +10,28 @@ repository = "https://github.com/themeliolabs/themelio-utils"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-serde = { version = "1.0.126", features = ["derive"] }
-blake3= "0.3.8"
-hex= "0.4.3"
-rand= "0.7.3"
-base32= "0.4.0"
-arbitrary={ version = "1.0.1", features = ["derive"] }
-serde-big-array = "0.3.2"
-stdcode={version= "^0.1.2-alpha.0", path="../stdcode"}
+[dependencies.arbitrary]
+version = "1.0.3"
+features = ["derive"]
 
 [dependencies.ed25519-dalek]
 features = ["legacy_compatibility"] # this is INTENTIONAL! signatures are not supposed to be non-malleable. do not change, otherwise consensus WILL be broken!
 version = "1.0.1"
+
+[dependencies.serde]
+version = "1.0.126"
+features = ["derive"]
+
+[dependencies.stdcode]
+version = "^0.1.2-alpha.0"
+path="../stdcode"
+
+[dependencies]
+base32 = "0.4.0"
+blake3 = "1.2.0"
+hex = "0.4.3"
+# The rand crate needs to be 0.7.3, because the ed25519-dalek crate currently uses the 0.7 branch of rand.
+# Until that crate has its dependency upgraded, using a newer version of the rand crate here will produce a similar
+# error to this: https://stackoverflow.com/questions/65562447/the-trait-rand-corecryptorng-is-not-implemented-for-osrng
+rand = "0.7.3"
+serde-big-array = "0.3.2"
