@@ -154,7 +154,7 @@ impl Ed25519PK {
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
                 Ok(sig) => {
-                    let verify_result = pk.verify(msg, &sig);
+                    let verify_result: Result<(), ed25519_dalek::ed25519::Error> = pk.verify(msg, &sig);
 
                     dbg!("Verifiy result: {}", &verify_result);
 
