@@ -1,3 +1,21 @@
+//! # TMelCrypt
+//!
+//! Example Usage
+//!
+//! ```rust
+//! use tmelcrypt::{ed25519_keygen, Ed25519PK, Ed25519SK};
+//!
+//! let (public_key, secret_key): (Ed25519PK, Ed25519SK) = ed25519_keygen();
+//!
+//! let message_byte_vector: Vec<u8> = vec![3];
+//!
+//! let signature: Vec<u8> = secret_key.sign(&message_byte_vector);
+//!
+//! let was_key_verified: bool = public_key.verify(&message_byte_vector, &signature);
+//!
+//! assert_eq!(was_key_verified, true);
+//! ```
+
 #![allow(clippy::upper_case_acronyms)]
 
 use std::fmt;
