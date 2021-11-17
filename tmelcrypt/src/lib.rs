@@ -153,7 +153,13 @@ impl Ed25519PK {
         let pk: Result<PublicKey, ed25519::Error> = ed25519_dalek::PublicKey::from_bytes(&self.0);
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
-                Ok(sig) => pk.verify(msg, &sig).is_ok(),
+                Ok(sig) => {
+                    let verify_result = pk.verify(msg, &sig);
+
+                    dbg!("Verifiy result: {}", &verify_result);
+
+                    verify_result.is_ok()
+                },
                 Err(error) => {
                     dbg!("Error while verifying an ed25519 signature: {}", error);
 
