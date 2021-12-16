@@ -174,18 +174,18 @@ impl Ed25519PK {
                 Ok(sig) => {
                     let verify_result: Result<(), ed25519_dalek::ed25519::Error> = pk.verify(msg, &sig);
 
-                    dbg!("Verifiy result: {}", &verify_result);
+                    log::trace!("Verifiy result: {:?}", &verify_result);
 
                     verify_result.is_ok()
                 },
                 Err(error) => {
-                    dbg!("Error while verifying an ed25519 signature: {}", error);
+                    log::trace!("Error while verifying an ed25519 signature: {}", error);
 
                     false
                 },
             },
             Err(error) => {
-                dbg!("Error while creating an ed25519 signature: {}", error);
+                log::trace!("Error while creating an ed25519 signature: {}", error);
 
                 false
             },
@@ -194,7 +194,7 @@ impl Ed25519PK {
 
     pub fn from_bytes(bts: &[u8]) -> Option<Self> {
         if bts.len() != 32 {
-            dbg!("In a call to from_bytes(), the input length was not 32.");
+            log::trace!("In a call to from_bytes(), the input length was not 32.");
             None
         } else {
             let mut buf = [0; 32];
