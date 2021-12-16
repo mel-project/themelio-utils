@@ -1,3 +1,21 @@
+//! # TMelCrypt
+//!
+//! Example Usage
+//!
+//! ```rust
+//! use tmelcrypt::{ed25519_keygen, Ed25519PK, Ed25519SK};
+//!
+//! let (public_key, secret_key): (Ed25519PK, Ed25519SK) = ed25519_keygen();
+//!
+//! let message_byte_vector: Vec<u8> = vec![3];
+//!
+//! let signature: Vec<u8> = secret_key.sign(&message_byte_vector);
+//!
+//! let was_key_verified: bool = public_key.verify(&message_byte_vector, &signature);
+//!
+//! assert_eq!(was_key_verified, true);
+//! ```
+
 #![allow(clippy::upper_case_acronyms)]
 
 use std::fmt;
@@ -153,15 +171,21 @@ impl Ed25519PK {
         let pk: Result<PublicKey, ed25519::Error> = ed25519_dalek::PublicKey::from_bytes(&self.0);
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
-                Ok(sig) => pk.verify(msg, &sig).is_ok(),
+                Ok(sig) => {
+                    let verify_result: Result<(), ed25519_dalek::ed25519::Error> = pk.verify(msg, &sig);
+
+                    log::trace!("Verifiy result: {:?}", &verify_result);
+
+                    verify_result.is_ok()
+                },
                 Err(error) => {
-                    dbg!("Error while verifying an ed25519 signature: {}", error);
+                    log::trace!("Error while verifying an ed25519 signature: {}", error);
 
                     false
                 },
             },
             Err(error) => {
-                dbg!("Error while creating an ed25519 signature: {}", error);
+                log::trace!("Error while creating an ed25519 signature: {}", error);
 
                 false
             },
@@ -170,7 +194,7 @@ impl Ed25519PK {
 
     pub fn from_bytes(bts: &[u8]) -> Option<Self> {
         if bts.len() != 32 {
-            dbg!("In a call to from_bytes(), the input length was not 32.");
+            log::trace!("In a call to from_bytes(), the input length was not 32.");
             None
         } else {
             let mut buf = [0; 32];

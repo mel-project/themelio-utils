@@ -1,6 +1,6 @@
 [package]
 name = "tmelcrypt"
-version = "0.2.2-alpha.0"
+version = "0.2.3"
 authors = ["Themelio Labs"]
 edition = "2018"
 
@@ -24,12 +24,13 @@ features = ["derive"]
 
 [dependencies.stdcode]
 version = "^0.1.4-alpha.0"
-path="../stdcode"
+path = "../stdcode"
 
 [dependencies]
 base32 = "0.4.0"
 blake3 = "1.2.0"
 hex = "0.4.3"
+log = "0.4.14"
 # The rand crate needs to be 0.7.3, because the ed25519-dalek crate currently uses the 0.7 branch of rand.
 # Until that crate has its dependency upgraded, using a newer version of the rand crate here will produce a similar
 # error to this: https://stackoverflow.com/questions/65562447/the-trait-rand-corecryptorng-is-not-implemented-for-osrng
