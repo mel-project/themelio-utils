@@ -139,6 +139,19 @@ impl fmt::Debug for HashVal {
     }
 }
 
+pub trait Hashable: AsRef<[u8]> {
+    fn hash(&self) -> HashVal {
+        hash_single(self)
+    }
+
+    fn hash_keyed(&self, key: impl AsRef<[u8]>) -> HashVal {
+        let bts = self.as_ref();
+        hash_keyed(key, bts)
+    }
+}
+
+impl<T: AsRef<[u8]>> Hashable for T {}
+
 /// Hashes a single value.
 pub fn hash_single(val: impl AsRef<[u8]>) -> HashVal {
     let b3h = blake3::hash(val.as_ref());
@@ -146,7 +159,7 @@ pub fn hash_single(val: impl AsRef<[u8]>) -> HashVal {
 }
 
 /// Hashes a value with the given key.
-pub fn hash_keyed(key: impl AsRef<[u8]>, val: impl AsRef<[u8]>) -> HashVal {
+pub fn hash_keyed<K: AsRef<[u8]>, V: AsRef<[u8]>>(key: K, val: V) -> HashVal {
     let b3h = blake3::keyed_hash(&hash_single(key).0, val.as_ref());
     HashVal((*b3h.as_bytes().as_ref()).try_into().unwrap())
 }
@@ -172,23 +185,24 @@ impl Ed25519PK {
         match pk {
             Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
                 Ok(sig) => {
-                    let verify_result: Result<(), ed25519_dalek::ed25519::Error> = pk.verify(msg, &sig);
+                    let verify_result: Result<(), ed25519_dalek::ed25519::Error> =
+                        pk.verify(msg, &sig);
 
                     log::trace!("Verifiy result: {:?}", &verify_result);
 
                     verify_result.is_ok()
-                },
+                }
                 Err(error) => {
                     log::trace!("Error while verifying an ed25519 signature: {}", error);
 
                     false
-                },
+                }
             },
             Err(error) => {
                 log::trace!("Error while creating an ed25519 signature: {}", error);
 
                 false
-            },
+            }
         }
     }
 
