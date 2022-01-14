@@ -23,7 +23,9 @@ pub fn serialize<T: Serialize>(v: &T) -> bincode::Result<Vec<u8>> {
 
 /// An extension trait for all stdcode-serializable stuff.
 pub trait StdcodeSerializeExt: Serialize + Sized {
-    fn serialize(&self) -> Vec<u8> {
+    fn stdcode(&self) -> Vec<u8> {
         serialize(self).unwrap()
     }
 }
+
+impl<T: Serialize + Sized> StdcodeSerializeExt for T {}
