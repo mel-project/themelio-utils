@@ -23,8 +23,8 @@ version = "1.0.126"
 features = ["derive"]
 
 [dependencies.stdcode]
-version = "^0.1.7-alpha.0"
-path = "../stdcode"
+version = "^0.1.6"
+# path = "../stdcode"
 
 [dependencies]
 base32 = "0.4.0"
