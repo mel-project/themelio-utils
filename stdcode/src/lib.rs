@@ -20,3 +20,10 @@ pub fn serialize<T: Serialize>(v: &T) -> bincode::Result<Vec<u8>> {
         .reject_trailing_bytes()
         .serialize(v)
 }
+
+/// An extension trait for all stdcode-serializable stuff.
+pub trait StdcodeSerializeExt: Serialize + Sized {
+    fn serialize(&self) -> Vec<u8> {
+        serialize(self).unwrap()
+    }
+}
