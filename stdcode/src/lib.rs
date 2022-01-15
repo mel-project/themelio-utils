@@ -3,6 +3,7 @@ use serde::{de::DeserializeOwned, Serialize};
 pub mod asstr;
 pub mod hex;
 pub mod hex32;
+pub mod hexvec;
 
 /// Safe deserialize that prevents DoS attacks.
 pub fn deserialize<T: DeserializeOwned>(bts: &[u8]) -> bincode::Result<T> {
