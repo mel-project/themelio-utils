@@ -8,9 +8,9 @@ edition = "2021"
 
 [dependencies]
 hex = "0.4.3"
-serde_json = "1.0.79"
+serde_json = "1.0.81"
 structopt = "0.3.26"
-themelio-stf = "0.9.12"
-themelio-structs = "0.2.1"
+themelio-stf = "0.10.6"
+themelio-structs = "0.2.5"
 tmelcrypt = "0.2.4"
  
