@@ -25,7 +25,7 @@ where
     D: Deserializer<'de>,
 {
     if deserializer.is_human_readable() {
-        let s = <&str>::deserialize(deserializer)?;
+        let s = String::deserialize(deserializer)?;
         hex::decode(s)
             .map_err(serde::de::Error::custom)?
             .try_into()
