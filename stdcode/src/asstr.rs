@@ -19,7 +19,7 @@ where
     D: Deserializer<'de>,
 {
     if deserializer.is_human_readable() {
-        let s = <&str>::deserialize(deserializer)?;
+        let s = String::deserialize(deserializer)?;
         s.parse()
             .map_err(|_| serde::de::Error::custom("FromStr parsing error"))
     } else {
