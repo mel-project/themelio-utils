@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Debug, str::FromStr};
 
 use serde::Deserialize;
 use serde::{Deserializer, Serialize, Serializer};
@@ -17,11 +17,12 @@ where
 pub fn deserialize<'de, T: FromStr + Deserialize<'de>, D>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,
+    <T as std::str::FromStr>::Err: Debug,
 {
     if deserializer.is_human_readable() {
         let s = String::deserialize(deserializer)?;
         s.parse()
-            .map_err(|_| serde::de::Error::custom("FromStr parsing error"))
+            .map_err(|e| serde::de::Error::custom(format!("FromStr parsing error {:?}", e)))
     } else {
         T::deserialize(deserializer)
     }
