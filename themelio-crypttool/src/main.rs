@@ -1,3 +1,4 @@
+use stdcode::StdcodeSerializeExt;
 use structopt::StructOpt;
 use themelio_stf::melvm::Covenant;
 use themelio_structs::{CoinID, Transaction};
@@ -83,7 +84,8 @@ fn main() {
                 tx.sigs.push(vec![]);
             }
             tx.sigs[opts.posn] = sig;
-            print_header("REWARD PSEUDO-COINID");
+            print_header("SIGNED TRANSACTION");
+            println!("{}", hex::encode(tx.stdcode()));
         }
     }
 }
