@@ -1,5 +1,6 @@
 use bincode::Options;
-use serde::{de::DeserializeOwned, Serialize};
+use bytes::Bytes;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 pub mod asstr;
 pub mod hex;
 pub mod hex32;
@@ -30,3 +31,32 @@ pub trait StdcodeSerializeExt: Serialize + Sized {
 }
 
 impl<T: Serialize + Sized> StdcodeSerializeExt for T {}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(transparent)]
+#[repr(transparent)]
+/// A bytevector that serializes as a bytevector for binary formats (like stdcode), but as hex for string formats (like JSON).
+///
+/// Does not have an ergonomic interface for using directly. Instead, use [HexBytes], which is a [serde_with] adapter.
+pub struct HexBytesInner(#[serde(with = "crate::hex")] Vec<u8>);
+
+impl<T: AsRef<[u8]>> From<T> for HexBytesInner {
+    fn from(s: T) -> Self {
+        HexBytesInner(s.as_ref().to_vec())
+    }
+}
+
+impl From<HexBytesInner> for Vec<u8> {
+    fn from(t: HexBytesInner) -> Self {
+        t.0
+    }
+}
+
+impl From<HexBytesInner> for Bytes {
+    fn from(t: HexBytesInner) -> Self {
+        t.0.into()
+    }
+}
+
+/// A type, similar to [serde_with::Bytes], except using hex encoding for text formats.
+pub type HexBytes = serde_with::FromInto<HexBytesInner>;
