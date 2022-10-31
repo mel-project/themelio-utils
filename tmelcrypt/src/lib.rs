@@ -26,8 +26,10 @@ use std::{convert::TryFrom, str::FromStr};
 use std::{convert::TryInto, fmt::Formatter};
 
 use arbitrary::Arbitrary;
-use ed25519_dalek::{ed25519, PublicKey, Signer, Verifier};
-use rand::prelude::*;
+
+use arrayref::array_ref;
+use ed25519_consensus::{Signature, SigningKey, VerificationKey};
+use rand::{prelude::*, rngs::OsRng};
 use serde::{Deserialize, Serialize};
 use serde_big_array::big_array;
 
@@ -65,11 +67,6 @@ impl HashVal {
         let raw_base32 = base32::encode(base32::Alphabet::Crockford {}, &self.0);
         let checksum = hash_keyed(b"address-checksum", &self.0).0[0] % 10;
         format!("T{}{}", checksum, raw_base32).to_ascii_lowercase()
-        // res.into_bytes()
-        //     .chunks(5)
-        //     .map(|chunk| String::from_utf8_lossy(chunk).to_ascii_lowercase())
-        //     .collect::<Vec<_>>()
-        //     .join("-")
     }
 
     pub fn from_addr(addr: &str) -> Option<Self> {
@@ -165,13 +162,10 @@ pub fn hash_keyed<K: AsRef<[u8]>, V: AsRef<[u8]>>(key: K, val: V) -> HashVal {
 }
 
 /// Generates an ed25519 keypair.
+#[deprecated = "Use Ed25519SK::generate instead"]
 pub fn ed25519_keygen() -> (Ed25519PK, Ed25519SK) {
-    let mut csprng: ThreadRng = rand::thread_rng();
-    let keypair = ed25519_dalek::Keypair::generate(&mut csprng);
-    (
-        Ed25519PK(keypair.public.to_bytes()),
-        Ed25519SK(keypair.to_bytes()),
-    )
+    let sk = Ed25519SK::generate();
+    (sk.to_public(), sk)
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
@@ -181,29 +175,13 @@ pub struct Ed25519PK(#[serde(with = "stdcode::hex32")] pub [u8; 32]);
 
 impl Ed25519PK {
     pub fn verify(&self, msg: &[u8], sig: &[u8]) -> bool {
-        let pk: Result<PublicKey, ed25519::Error> = ed25519_dalek::PublicKey::from_bytes(&self.0);
-        match pk {
-            Ok(pk) => match ed25519_dalek::Signature::try_from(sig) {
-                Ok(sig) => {
-                    let verify_result: Result<(), ed25519_dalek::ed25519::Error> =
-                        pk.verify(msg, &sig);
-
-                    log::trace!("Verifiy result: {:?}", &verify_result);
-
-                    verify_result.is_ok()
-                }
-                Err(error) => {
-                    log::trace!("Error while verifying an ed25519 signature: {}", error);
-
-                    false
-                }
-            },
-            Err(error) => {
-                log::trace!("Error while creating an ed25519 signature: {}", error);
-
-                false
-            }
+        if sig.len() != 64 {
+            return false;
         }
+        let sig = Signature::from(*array_ref![sig, 0, 64]);
+        VerificationKey::try_from(self.0)
+            .and_then(|vk| vk.verify(&sig, msg))
+            .is_ok()
     }
 
     pub fn from_bytes(bts: &[u8]) -> Option<Self> {
@@ -257,29 +235,32 @@ impl Hash for Ed25519SK {
 }
 
 impl Ed25519SK {
+    pub fn generate() -> Self {
+        let mut csprng = OsRng {};
+        let key = SigningKey::new(&mut csprng);
+        let pure_sk = key.to_bytes();
+        let pure_pk = VerificationKey::from(&key).to_bytes();
+        let mut vv = Vec::with_capacity(64);
+        vv.extend_from_slice(&pure_sk);
+        vv.extend_from_slice(&pure_pk);
+        Self(vv.try_into().unwrap())
+    }
+
     pub fn sign(&self, msg: &[u8]) -> Vec<u8> {
-        let kp = ed25519_dalek::Keypair::from_bytes(&self.0).unwrap();
-        kp.sign(msg).to_bytes().to_vec()
+        let key = SigningKey::from(*array_ref![self.0, 0, 32]);
+        key.sign(msg).to_bytes().to_vec()
     }
 
     pub fn from_bytes(bts: &[u8]) -> Option<Self> {
         if bts.len() != 64 {
             None
         } else {
-            let mut buf = [0; 64];
-            let kp = ed25519_dalek::Keypair::from_bytes(&bts);
-            if kp.is_err() {
-                None
-            } else {
-                buf.copy_from_slice(bts);
-                Some(Ed25519SK(buf))
-            }
+            Some(Self(*array_ref![bts, 0, 64]))
         }
     }
 
     pub fn to_public(&self) -> Ed25519PK {
-        let kp = ed25519_dalek::Keypair::from_bytes(&self.0).unwrap();
-        Ed25519PK(kp.public.to_bytes())
+        Ed25519PK(*array_ref![self.0, 32, 32])
     }
 }
 

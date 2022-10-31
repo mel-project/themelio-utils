@@ -14,9 +14,6 @@ repository = "https://github.com/themeliolabs/themelio-utils"
 version = "1.0.3"
 features = ["derive"]
 
-[dependencies.ed25519-dalek]
-features = ["legacy_compatibility"] # this is INTENTIONAL! signatures are not supposed to be non-malleable. do not change, otherwise consensus WILL be broken!
-version = "1.0.1"
 
 [dependencies.serde]
 version = "1.0.126"
@@ -31,8 +28,8 @@ base32 = "0.4.0"
 blake3 = "1.2.0"
 hex = "0.4.3"
 log = "0.4.14"
-# The rand crate needs to be 0.7.3, because the ed25519-dalek crate currently uses the 0.7 branch of rand.
-# Until that crate has its dependency upgraded, using a newer version of the rand crate here will produce a similar
-# error to this: https://stackoverflow.com/questions/65562447/the-trait-rand-corecryptorng-is-not-implemented-for-osrng
-rand = "0.7.3"
+
+rand = "0.8"
 serde-big-array = "0.3.2"
+ed25519-consensus = "1"
+arrayref = "0.3.6"
