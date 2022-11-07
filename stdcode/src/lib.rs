@@ -1,3 +1,8 @@
+use std::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
+
 use bincode::Options;
 use bytes::Bytes;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -5,6 +10,15 @@ pub mod asstr;
 pub mod hex;
 pub mod hex32;
 pub mod hexvec;
+
+/// A wrapper that serializes whatever's wrapped inside with its [Display] and [FromStr] implementations.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
+#[serde(transparent)]
+pub struct SerializeAsString<T: Display + FromStr + Serialize + DeserializeOwned>(
+    #[serde(with = "crate::asstr")] T,
+)
+where
+    T::Err: Debug;
 
 /// Safe deserialize that prevents DoS attacks.
 pub fn deserialize<T: DeserializeOwned>(bts: &[u8]) -> bincode::Result<T> {
