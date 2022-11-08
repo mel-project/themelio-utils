@@ -15,7 +15,7 @@ pub mod hexvec;
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
 #[serde(transparent)]
 pub struct SerializeAsString<T: Display + FromStr + Serialize + DeserializeOwned>(
-    #[serde(with = "crate::asstr")] T,
+    #[serde(with = "crate::asstr")] pub T,
 )
 where
     T::Err: Debug;
