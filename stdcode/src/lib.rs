@@ -10,6 +10,7 @@ pub mod asstr;
 pub mod hex;
 pub mod hex32;
 pub mod hexvec;
+pub mod try_asstr;
 
 /// A wrapper that serializes whatever's wrapped inside with its [Display] and [FromStr] implementations.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]

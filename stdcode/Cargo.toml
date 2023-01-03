@@ -15,6 +15,9 @@ hex = "0.4.3"
 serde_with = "1"
 bytes = "1.2.1"
 
+[dev-dependencies]
+serde_json="1" 
+
 [dependencies.serde]
 version = "1.0.133"
 features = ["derive"]
