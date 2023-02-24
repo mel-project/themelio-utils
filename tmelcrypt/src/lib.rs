@@ -173,6 +173,17 @@ pub fn ed25519_keygen() -> (Ed25519PK, Ed25519SK) {
 #[serde(transparent)]
 pub struct Ed25519PK(#[serde(with = "stdcode::hex32")] pub [u8; 32]);
 
+impl FromStr for Ed25519PK {
+    type Err = hex::FromHexError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let vv = hex::decode(s)?;
+        Ok(Ed25519PK(
+            vv.try_into()
+                .map_err(|_| hex::FromHexError::InvalidStringLength)?,
+        ))
+    }
+}
+
 impl Ed25519PK {
     pub fn verify(&self, msg: &[u8], sig: &[u8]) -> bool {
         if sig.len() != 64 {
@@ -196,14 +207,27 @@ impl Ed25519PK {
     }
 }
 
+impl Display for Ed25519PK {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        hex::encode(self.0).fmt(f)
+    }
+}
+
 impl fmt::Debug for Ed25519PK {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("#<EdPK:{}>", hex::encode(&self.0[..5])))
     }
 }
+
 #[derive(Copy, Clone, Serialize, Deserialize)]
 /// An ed25519 secret key. Implements FromStr that converts from hexadecimal.
 pub struct Ed25519SK(#[serde(with = "BigArray")] pub [u8; 64]);
+
+impl Display for Ed25519SK {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        hex::encode(self.0).fmt(f)
+    }
+}
 
 impl FromStr for Ed25519SK {
     type Err = hex::FromHexError;
